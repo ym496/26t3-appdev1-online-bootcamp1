@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
@@ -10,13 +10,20 @@ USER_PLAYLISTS = {
     "sam": {
         "coding": ["Resonance", "90s Flanger", "Hackers Theme"],
         "roadtrip": ["Hotel California", "Go Your Own Way", "Fast Car"]
-    }
+    },
+
+    "musical": {
+        
+        }
 }
+
+Users = {}
 
 @app.route("/")
 def hello():
     users = list(USER_PLAYLISTS.keys())
-    return render_template("index.html", users=users)
+    registered_users = list(Users.keys())
+    return render_template("index.html", users=users, registered_users=registered_users)
 
 @app.route("/about")
 def about():
@@ -26,51 +33,59 @@ def about():
 def user_profile(username):
     user_key = username.lower()
 
-    if user_key not in USER_PLAYLISTS:
-        return "<h2>User not found.</h2><a href='/'>Back Home</a>", 404
+    playlists = list(USER_PLAYLISTS[user_key].keys())
 
-    user_playlists = USER_PLAYLISTS[user_key]
-    links = ""
-    for playlist_name in user_playlists:
-        links += f"<li><a href='/user/{user_key}/playlist/{playlist_name}'>{playlist_name.title()}</a></li>"
+    return render_template(
+        "user_profile.html",
+        username=username,
+        user_key=user_key,
+        playlists=playlists
+    )
 
-    return f"""
-    <h1>{username.title()}'s Profile</h1>
-    <p>Select a playlist:</p>
-    <ul>
-        {links}
-    </ul>
-    <br>
-    <a href="/">Back to Home</a>
-    """
 
 @app.route('/user/<username>/playlist/<playlist_name>')
 def show_user_playlist(username, playlist_name):
     user_key = username.lower()
     playlist_key = playlist_name.lower()
 
-    if user_key not in USER_PLAYLISTS:
-        return f"<h2>User '{username}' not found.</h2>", 404
-
     user_data = USER_PLAYLISTS[user_key]
-    if playlist_key not in user_data:
-        return f"<h2>Playlist '{playlist_name}' not found for user {username}.</h2>", 404
 
     tracks = user_data[playlist_key]
-    list_items = ""
-    for track in tracks:
-        list_items += f"<li>{track}</li>"
 
-    return f"""
-    <h1>{username.title()}'s "{playlist_name.title()}" Playlist</h1>
-    <ul>
-        {list_items}
-    </ul>
-    <p>
-        <a href="/user/{user_key}">Back to {username.title()}'s Profile</a> | 
-        <a href="/">Home</a>
-    </p>
-    """
+    return render_template(
+        "user_playlist.html",
+        username=username,
+        user_key=user_key,
+        playlist_name=playlist_name,
+        tracks=tracks
+    )
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        if username in Users:
+            return "Username already exists. Please choose a different one."
+
+        Users[username] = password
+        return f"User {username} registered successfully!"
+    return render_template("register.html")
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        if username in Users and Users[username] == password:
+            return redirect(url_for('user_profile', username=username))
+        else:
+            return "Invalid username or password. Please try again."    
+    return render_template("login.html")
+
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)

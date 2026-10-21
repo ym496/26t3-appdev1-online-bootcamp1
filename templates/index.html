@@ -6,11 +6,14 @@
 </head>
 <body>
      <h1>User Directory</h1>
-    <p>Select a user to view their playlists:</p>
+    <p>current coool users in our app:</p>
     <ul>
-        {% for username in users %}
-            <li><a href='/user/{{ username }}'>{{ username}}</a></li>
+        {% for username in registered_users %}
+            <li>{{ username}}</li>
         {% endfor %}
  </ul>
+
+ <p>wanna be on the list? <a href="/register">register here</a></p>
+<p>already a user? <a href="/login">login here</a></p>
 </body>
 </html>

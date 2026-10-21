@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ username.title() }}'s "{{ playlist_name.title() }}" Playlist</title>
+</head>
+<body>
+
+    <h1>{{ username.title() }}'s "{{ playlist_name.title() }}" Playlist</h1>
+
+    <ul>
+        {% for track in tracks %}
+            <li>{{ track }}</li>
+        {% else %}
+            <li>This playlist is empty.</li>
+        {% endfor %}
+    </ul>
+
+    <p>
+        <a href="/user/{{ user_key }}">Back to {{ username.title() }}'s Profile</a> | 
+        <a href="/">Home</a>
+    </p>
+
+</body>
+</html>

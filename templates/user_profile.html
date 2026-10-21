@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ username.title() }}'s Profile</title>
+</head>
+<body>
+
+    <h1>{{ username.title() }}'s Profile</h1>
+    <p>Select a playlist:</p>
+
+    
+    <ul>
+        {% for playlist_name in playlists %}
+            <li>
+                <a href="/user/{{ user_key }}/playlist/{{ playlist_name }}">
+                    {{ playlist_name.title() }}
+                </a>
+            </li>
+        {% else %}
+            <li>No playlists found for this user.</li>
+        {% endfor %}
+    </ul>
+
+    <br>
+    <a href="/">Back to Home</a>
+
+</body>
+</html>
