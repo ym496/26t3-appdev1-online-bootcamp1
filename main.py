@@ -11,10 +11,7 @@ USER_PLAYLISTS = {
         "coding": ["Resonance", "90s Flanger", "Hackers Theme"],
         "roadtrip": ["Hotel California", "Go Your Own Way", "Fast Car"]
     },
-
-    "musical": {
-        
-        }
+    "musical": {}
 }
 
 Users = {}
@@ -33,6 +30,9 @@ def about():
 def user_profile(username):
     user_key = username.lower()
 
+    if user_key not in USER_PLAYLISTS:
+        return "<h2>User not found.</h2><a href='/'>Back Home</a>", 404
+
     playlists = list(USER_PLAYLISTS[user_key].keys())
 
     return render_template(
@@ -42,13 +42,17 @@ def user_profile(username):
         playlists=playlists
     )
 
-
 @app.route('/user/<username>/playlist/<playlist_name>')
 def show_user_playlist(username, playlist_name):
     user_key = username.lower()
     playlist_key = playlist_name.lower()
 
+    if user_key not in USER_PLAYLISTS:
+        return "<h2>User not found.</h2>", 404
+
     user_data = USER_PLAYLISTS[user_key]
+    if playlist_key not in user_data:
+        return f"<h2>Playlist '{playlist_name}' not found.</h2>", 404
 
     tracks = user_data[playlist_key]
 
@@ -60,32 +64,56 @@ def show_user_playlist(username, playlist_name):
         tracks=tracks
     )
 
+@app.route('/user/<username>/playlist/create', methods=['POST'])
+def create_playlist(username):
+    user_key = username.lower()
+    playlist_name = request.form['playlist_name'].strip().lower()
+
+    if user_key in USER_PLAYLISTS and playlist_name:
+        if playlist_name not in USER_PLAYLISTS[user_key]:
+            USER_PLAYLISTS[user_key][playlist_name] = []
+
+    return redirect(url_for('user_profile', username=user_key))
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].strip()
         password = request.form['password']
+        user_key = username.lower()
 
-        if username in Users:
+        if user_key in Users:
             return "Username already exists. Please choose a different one."
 
-        Users[username] = password
-        return f"User {username} registered successfully!"
+        # 1. Register user
+        Users[user_key] = password
+
+        # 2. Create empty playlists dictionary for this user
+        USER_PLAYLISTS[user_key] = {}
+
+        # 3. Success message with a 'Log In Now' button/link
+        return f"""
+        <h2>User '{username}' registered successfully!</h2>
+        <a href="{url_for('login')}">
+            <button type="button">Log In Now</button>
+        </a>
+        """
+        
     return render_template("register.html")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].strip()
         password = request.form['password']
+        user_key = username.lower()
 
-        if username in Users and Users[username] == password:
-            return redirect(url_for('user_profile', username=username))
+        if user_key in Users and Users[user_key] == password:
+            return redirect(url_for('user_profile', username=user_key))
         else:
             return "Invalid username or password. Please try again."    
+            
     return render_template("login.html")
-
-
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)
