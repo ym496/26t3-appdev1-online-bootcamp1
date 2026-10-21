@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+     <h1>User Directory</h1>
+    <p>Select a user to view their playlists:</p>
+    <ul>
+        {% for username in users %}
+            <li><a href='/user/{{ username }}'>{{ username}}</a></li>
+        {% endfor %}
+ </ul>
+</body>
+</html>

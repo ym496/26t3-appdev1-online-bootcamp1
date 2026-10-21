@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
@@ -15,22 +15,12 @@ USER_PLAYLISTS = {
 
 @app.route("/")
 def hello():
-
-    links = ""
-    for username in USER_PLAYLISTS:
-        links += f"<li><a href='/user/{username}'>{username.title()}</a></li>"
-
-    return f"""
-    <h1>User Directory</h1>
-    <p>Select a user to view their playlists:</p>
-    <ul>
-        {links}
-    </ul>
-    """
+    users = list(USER_PLAYLISTS.keys())
+    return render_template("index.html", users=users)
 
 @app.route("/about")
 def about():
-    return "<h1>About Page</h1><p>This is the about page of the Flask application.</p>"
+    return render_template("about.html")
 
 @app.route("/user/<username>")
 def user_profile(username):
