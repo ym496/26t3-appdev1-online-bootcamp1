@@ -19,10 +19,10 @@
 
     <p>Select a playlist:</p>
     <ul>
-        {% for playlist_name in playlists %}
+        {% for playlist in playlists %}
             <li>
-                <a href="/user/{{ user_key }}/playlist/{{ playlist_name }}">
-                    {{ playlist_name.title() }}
+                <a href="/user/{{ user_key }}/playlist/{{ playlist.name }}">
+                    {{ playlist.name.title() }}
                 </a>
             </li>
         {% else %}
