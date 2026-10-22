@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
-<body>
+{%extends "base.html" %}
+{% block title %}Home - BeatBox{% endblock %}
+{% block content %}
+
+    
      <h1>User Directory</h1>
     <p>current coool users in our app:</p>
     <ul>
@@ -15,5 +13,4 @@
 
  <p>wanna be on the list? <a href="/register">register here</a></p>
 <p>already a user? <a href="/login">login here</a></p>
-</body>
-</html>
+{%endblock %}

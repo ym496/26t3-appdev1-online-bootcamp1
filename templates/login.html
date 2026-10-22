@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - BeatBox</title>
-</head>
-<body>
-
+{%extends "base.html" %}
+{%block title %}Login - BeatBox{% endblock %}
+{%block content %}
     <h1>BeatBox Login</h1>
 
     <form action="/login" method="POST">
@@ -25,6 +20,4 @@
     <br>
     <p>Don't have an account? <a href="/register">Register here</a>.</p>
     <p><a href="/">Back to Home</a></p>
-
-</body>
-</html>
+{%endblock %}

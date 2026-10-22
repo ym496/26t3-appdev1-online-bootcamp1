@@ -1,6 +1,41 @@
 from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///beatbox.db'
+db = SQLAlchemy(app)
+
+# models
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(12), unique=True, nullable=False)
+    password = db.Column(db.String(12), nullable=False)
+    role = db.Column(db.String(10), nullable=False, default='listener')
+
+class Song(db.Model):
+    __tablename__ = 'songs'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    genre = db.Column(db.String(50), nullable=True)
+    lyrics = db.Column(db.Text, nullable=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+class Playlist(db.Model):
+    __tablename__ = 'playlists'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+
+class PlaylistSong(db.Model):
+    __tablename__ = 'playlist_songs'
+    id = db.Column(db.Integer, primary_key=True)
+    playlist_id = db.Column(db.Integer, db.ForeignKey('playlists.id'), nullable=False)
+    song_id = db.Column(db.Integer, db.ForeignKey('songs.id'), nullable=False)
+
+
 
 USER_PLAYLISTS = {
     "alex": {
@@ -18,9 +53,11 @@ Users = {}
 
 @app.route("/")
 def hello():
-    users = list(USER_PLAYLISTS.keys())
-    registered_users = list(Users.keys())
-    return render_template("index.html", users=users, registered_users=registered_users)
+    users = User.query.all()
+    # [<User 1>, <User 2>, ...]
+    print(users[0].password) 
+    # ['alex', 'sam', 'musical']
+    return render_template("index.html",registered_users=registered_users)
 
 @app.route("/about")
 def about():
@@ -115,5 +152,15 @@ def login():
             
     return render_template("login.html")
 
+def init_db():
+    with app.app_context():
+        db.create_all()
+        admin_user = User.query.filter_by(username='admin').first()
+        if not admin_user:
+            admin_user = User(username='admin', password='admin', role='admin')
+            db.session.add(admin_user)
+            db.session.commit()
+
 if __name__ == '__main__':
+    init_db()
     app.run(host='127.0.0.1', port=5000, debug=True)

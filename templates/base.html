@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}BeatBox{% endblock %}</title>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <strong>🎵 BeatBox</strong> |
+            <a href="/">Home</a> |
+            <a href="/login">Login</a> |
+            <a href="/register">Register</a>
+        </nav>
+    </header>
+    <hr>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    <hr>
+    <footer>
+        <p><small>&copy; BeatBox Music Application</small></p>
+    </footer>
+
+</body>
+</html>
