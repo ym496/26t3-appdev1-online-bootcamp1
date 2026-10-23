@@ -1,0 +1,17 @@
+{%- extends "artist_nav.html" -%}
+{%- block title -%}{{ username.title() }}'s Profile - BeatBox{% endblock %}
+
+{%- block content -%}
+    <h1>{{ username.title() }}'s Profile</h1>
+
+    <!-- Form to create a new playlist -->
+    <h3>Add a new song</h3>
+    <form action="/artist/{{ username }}/add_song" method="POST">
+        <input type="text" name="song_title" placeholder="Song title" required>
+        <input type="text" name="genre" placeholder="Genre" required>
+        <textarea name="lyrics" placeholder="Lyrics"></textarea>
+        <button type="submit">Add Song</button>
+    </form>
+
+
+{%- endblock -%}

@@ -36,21 +36,6 @@ class PlaylistSong(db.Model):
     song_id = db.Column(db.Integer, db.ForeignKey('songs.id'), nullable=False)
 
 
-
-USER_PLAYLISTS = {
-    "alex": {
-        "workout": ["Eye of the Tiger", "Till I Collapse", "Harder, Better, Faster, Stronger"],
-        "chill": ["Weightless", "Sunset Lover", "Melancholy Hill"]
-    },
-    "sam": {
-        "coding": ["Resonance", "90s Flanger", "Hackers Theme"],
-        "roadtrip": ["Hotel California", "Go Your Own Way", "Fast Car"]
-    },
-    "musical": {}
-}
-
-Users = {}
-
 @app.route("/")
 def hello():
     users = User.query.all()
@@ -79,6 +64,7 @@ def user_profile(username):
         user_key=user_key,
         playlists=playlists
     )
+
 
 @app.route('/user/<username>/playlist/<playlist_name>')
 def show_user_playlist(username, playlist_name):
@@ -115,6 +101,46 @@ def create_playlist(username):
 
     return redirect(url_for('user_profile', username=user_key))
 
+
+@app.route('/artist/<username>')
+def artist_profile(username):
+    user_key = username.lower()
+    user = User.query.filter_by(username=user_key).first()
+    if not user:
+        return "<h2>Artist not found.</h2>", 404
+
+    songs = Song.query.filter_by(artist_id=user.id).all()
+
+    return render_template(
+        "artist_profile.html",
+        username=username,
+        user_key=user_key,
+        songs=songs
+    )
+
+@app.route('/artist/<username>/add_song', methods=['GET', 'POST'])
+def add_song(username):
+    if request.method == 'POST':
+        user_key = username.lower()
+        user = User.query.filter_by(username=user_key).first()
+        if not user:
+            return "<h2>Artist not found.</h2>", 404
+
+        song_title = request.form['song_title'].strip()
+        genre = request.form['genre'].strip()
+        lyrics = request.form['lyrics'].strip()
+
+        song = Song(title=song_title, genre=genre, lyrics=lyrics, artist_id=user.id)
+        db.session.add(song)
+        db.session.commit()
+
+        return redirect(url_for('artist_profile', username=user_key))
+    return render_template("add_song.html", username=username)
+
+
+
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -145,7 +171,10 @@ def login():
         user_key = username.lower()
         user = User.query.filter_by(username=user_key).first()
         if user and user.password == password:
-            return redirect(url_for('user_profile', username=user_key))
+            if user.role == 'artist':
+                return redirect(url_for('artist_profile', username=user_key))
+            else:
+                return redirect(url_for('user_profile', username=user_key))
         else:
             return "Invalid username or password. Please try again."    
             
