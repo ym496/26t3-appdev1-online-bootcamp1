@@ -1,0 +1,10 @@
+{%- extends "base.html" -%}
+{%- block title -%}{{ song.title }} - BeatBox{% endblock %}
+
+{%- block content -%}
+    <h1>{{ song.title }}</h1>
+    <p><strong>Genre:</strong> {{ song.genre }}</p>
+    <p><strong>Lyrics:</strong></p>
+    <pre>{{ song.lyrics }}</pre>
+
+{%- endblock -%}

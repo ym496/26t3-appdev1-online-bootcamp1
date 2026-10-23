@@ -1,0 +1,26 @@
+{% extends "artist_nav.html" %}
+
+{% block title %}Edit Song - BeatBox{% endblock %}
+
+{% block content %}
+    <h1>Edit Song</h1>
+
+    <form action="/edit_song/{{ song.id }}" method="POST">
+        <div>
+            <label for="song_title">Song Title:</label><br>
+            <input type="text" id="song_title" name="song_title" value="{{ song.title }}" required>
+        </div>
+        <br>
+        <div>
+            <label for="genre">Genre:</label><br>
+            <input type="text" id="genre" name="genre" value="{{ song.genre }}" required>
+        </div>
+        <br>
+        <div>
+            <label for="lyrics">Lyrics:</label><br>
+            <textarea id="lyrics" name="lyrics">{{ song.lyrics }}</textarea>
+        </div>
+        <br>
+        <button type="submit">Update Song</button>
+    </form>
+{% endblock %}

@@ -78,8 +78,13 @@ def show_user_playlist(username, playlist_name):
     if playlist is None:
         return f"<h2>Playlist '{playlist_name}' not found.</h2>", 404
 
-    tracks = PlaylistSong.query.filter_by(playlist_id=playlist.id).all()
-
+    playlist_tracks = PlaylistSong.query.filter_by(playlist_id=playlist.id).all()
+    song_ids = [track.song_id for track in playlist_tracks]
+    tracks = []
+    for song_id in song_ids:
+        song = Song.query.filter_by(id=song_id).first()
+        if song:
+            tracks.append(song)
     return render_template(
         "user_playlist.html",
         username=username,
@@ -136,6 +141,49 @@ def add_song(username):
 
         return redirect(url_for('artist_profile', username=user_key))
     return render_template("add_song.html", username=username)
+
+
+
+@app.route('/delete_song/<int:song_id>', methods=['POST'])
+def delete_song(song_id):
+    song = Song.query.get(song_id)
+    if not song:
+        return "<h2>Song not found.</h2>", 404
+
+    db.session.delete(song)
+    db.session.commit()
+    artist_key = User.query.get(song.artist_id).username
+    return redirect(url_for('artist_profile', username=artist_key))
+
+@app.route('/edit_song/<int:song_id>', methods=['GET', 'POST'])
+def edit_song(song_id):
+    song = Song.query.get(song_id)
+    if not song:
+        return "<h2>Song not found.</h2>", 404
+
+    if request.method == 'POST':
+        song.title = request.form['song_title'].strip()
+        song.genre = request.form['genre'].strip()
+        song.lyrics = request.form['lyrics'].strip()
+        db.session.commit()
+        artist_key = User.query.get(song.artist_id).username
+        return redirect(url_for('artist_profile', username=artist_key))
+
+    return render_template("edit_song.html", song=song, username=User.query.get(song.artist_id).username)
+
+@app.route('/song/<int:song_id>')
+def song_page(song_id):
+    song = Song.query.get(song_id)
+    if not song:
+        return "<h2>Song not found.</h2>", 404
+
+    artist = User.query.get(song.artist_id)
+
+    return render_template(
+        "song_page.html",
+        song=song,
+        artist=artist
+    )
 
 
 

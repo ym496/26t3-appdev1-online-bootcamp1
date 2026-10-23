@@ -9,7 +9,15 @@
     <h2>Songs by {{username}}:  <a href="/artist/{{username}}/add_song"> + Add a new song</a></h2> 
     <ul>
         {% for song in songs %}
-            <li>{{ song.title }}</li>
+            <li><a href="/song/{{ song.id }}">
+                
+                {{ song.title }}</a>
+                <form action="/delete_song/{{ song.id }}" method="post" style="display:inline;">
+                    <input type="submit" value="❌ Delete">
+                </form>
+            [<a href="/edit_song/{{ song.id }}"> 📝 Edit</a>]
+            
+            </li> 
         {% endfor %}
     </ul>
 {% endblock %}
