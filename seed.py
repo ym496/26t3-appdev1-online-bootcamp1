@@ -7,8 +7,8 @@ Usage:
 """
 
 import sys
-from main import app, db, User, Song, Playlist, PlaylistSong
-
+from application.models import db, User, Song, Playlist, PlaylistSong
+from main import app  
 
 def seed_database(clear_existing=True):
     with app.app_context():
