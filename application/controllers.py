@@ -22,6 +22,7 @@ def about():
 def user_profile(username):
     user_key = username.lower()
     user = User.query.filter_by(username=user_key).first()
+    songs = Song.query.all()
     if not user:
         return "<h2>User not found.</h2>", 404
 
@@ -31,7 +32,8 @@ def user_profile(username):
         "user_profile.html",
         username=username,
         user_key=user_key,
-        playlists=playlists
+        playlists=playlists,
+        songs=songs
     )
 
 @app.route("/blacklist_user/<int:user_id>", methods=["POST"])
@@ -115,6 +117,7 @@ def create_playlist(username):
 
 
 @app.route('/artist/<username>')
+@artist_required
 def artist_profile(username):
     user_key = username.lower()
     user = User.query.filter_by(username=user_key).first()

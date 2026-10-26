@@ -1,0 +1,3 @@
+- listen and browse songs
+- add/remove songs from playlists
+- 

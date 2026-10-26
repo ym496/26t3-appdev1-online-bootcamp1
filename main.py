@@ -1,7 +1,7 @@
 from flask import Flask, session
 from application.models import db, User
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = 'mujic-streaming' 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///beatbox.db'
 db.init_app(app)
