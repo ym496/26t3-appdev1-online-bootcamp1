@@ -21,8 +21,20 @@ def about():
 @listener_required
 def user_profile(username):
     user_key = username.lower()
+    query = request.args.get("query", "").strip()
+    print(query)
+    search_pattern = f"%{query}%"
+
     user = User.query.filter_by(username=user_key).first()
-    songs = Song.query.all()
+    if query:
+        songs = Song.query.filter(
+            (Song.title.ilike(search_pattern)) |
+            (Song.genre.ilike(search_pattern))|
+            (Song.artist_id == User.id) & (User.username.ilike(search_pattern))
+        ).all()
+        print(songs)
+    else:
+        songs = Song.query.all()
     if not user:
         return "<h2>User not found.</h2>", 404
 
@@ -33,7 +45,8 @@ def user_profile(username):
         username=username,
         user_key=user_key,
         playlists=playlists,
-        songs=songs
+        songs=songs,
+        query=query
     )
 
 @app.route("/blacklist_user/<int:user_id>", methods=["POST"])

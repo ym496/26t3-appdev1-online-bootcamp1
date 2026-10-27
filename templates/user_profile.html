@@ -9,10 +9,33 @@
     <h1>{{ username.title() }}'s Profile</h1>
 
 <h2>Browse Songs</h2>
-
+<p> Search for songs by title, artist, or genre.</p>
+    <form action="/user/{{ user_key }}" style="display: inline-block;" method="GET">
+        {% if query %}
+            <input type="text" name="query" placeholder="Search for song title, genre..." value="{{ query }}" required>
+            <!-- <select name="filter">
+                <option value="title" {% if filter == 'title' %}selected{% endif %}>Title</option>
+                <option value="artist" {% if filter == 'artist' %}selected{% endif %}>Artist</option>
+                <option value="genre" {% if filter == 'genre' %}selected{% endif %}>Genre</option>
+            </select> -->
+        {% else %}
+            <input type="text" name="query" placeholder="Search for song title, genre..." required>
+                <!-- <select name="filter">
+                <option value="title" {% if filter == 'title' %}selected{% endif %}>Title</option>
+                <option value="artist" {% if filter == 'artist' %}selected{% endif %}>Artist</option>
+                <option value="genre" {% if filter == 'genre' %}selected{% endif %}>Genre</option>
+            </select> -->
+        {% endif %}        <button type="submit">Search</button>
+    </form>
+      {% if query %}
+<a href="/user/{{ user_key }}" style="display: inline-block; margin-left: 10px;" > ❌Clear Search</a>
+        {% endif %}
     <ul>
+        {% if query %}
+            <p>Search results for query <strong>{{ query }}</strong>:</p>
+        {% endif %}
         {% for song in songs %}
-        <div class="card" style="width: 18rem;">
+        <div>
             <li><a href="/song/{{ song.id }}">
                 
                 {{ song.title }}</a>
