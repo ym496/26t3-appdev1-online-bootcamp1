@@ -5,4 +5,25 @@
 {% block content %}
 <h1>Admin Dashboard</h1>
 <p>Welcome to the admin dashboard. Here you can manage users, artists, and other administrative tasks.</p>
+
+<div class="stats-container" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+    <div class="stat-card">
+        <h2>Total Artists</h2>
+        <p>{{ total_artists }}</p>
+    </div>
+    <div class="stat-card">
+        <h2>Total Listeners</h2>
+        <p>{{ total_listeners }}</p>
+    </div>
+    <div class="stat-card">
+        <h2>Total Songs</h2>
+        <p>{{ total_songs }}</p>
+    </div>
+    <div class="stat-card">
+        <h2>Total Playlists</h2>
+        <p>{{ total_playlists }}</p>
+    </div>
+</div>
+  <strong> <p> see visual statistics: </p></strong>
+  <a href="{{ url_for('admin_stats') }}">View Charts</a>
 {% endblock %}

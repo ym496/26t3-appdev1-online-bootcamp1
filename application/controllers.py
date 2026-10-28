@@ -2,7 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask import current_app as app
 from application.models import db, User, Song, Playlist, PlaylistSong
 from application.decorators import admin_required, artist_required, listener_required
-
+import base64
+import io
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from sqlalchemy import func
 
 @app.route("/")
 def hello():
@@ -208,11 +213,63 @@ def song_page(song_id):
         artist=artist
     )
 
+@app.route('/admin/stats')
+def admin_stats():
+    # 1. Query DB: Count only listeners and artists
+    role_counts = (
+        db.session.query(User.role, func.count(User.id))
+        .filter(User.role.in_(['listener', 'artist']))
+        .group_by(User.role)
+        .all()
+    )
+
+    # Convert query results to lists: e.g. ['Artist', 'Listener'], [8, 25]
+    labels = [row[0].capitalize() for row in role_counts]
+    values = [row[1] for row in role_counts]
+
+    # --- 2. Matplotlib: Generate Pie Chart ---
+    fig, ax = plt.subplots(figsize=(5, 5))
+    colors = ['#4e73df', '#1cc88a']
+    
+    # Plot pie chart with percentages and labels
+    ax.pie(
+        values, 
+        labels=labels, 
+        autopct='%1.1f%%', 
+        startangle=140, 
+        colors=colors,
+        textprops={'fontsize': 12}
+    )
+    ax.set_title('Listener vs. Artist Ratio (Matplotlib Pie)', fontsize=14)
+    plt.tight_layout()
+
+    # Save to in-memory buffer and encode to Base64
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', transparent=True)
+    buf.seek(0)
+    plt.close(fig)  # Close to prevent memory accumulation
+    pie_img = base64.b64encode(buf.getvalue()).decode('utf-8')
+
+    # --- 3. Pass data to template for Chart.js Bar Chart ---
+    return render_template(
+        'admin_stats.html',
+        pie_img=pie_img,
+        labels=labels,
+        values=values
+    )
 
 @app.route('/admin')
 @admin_required
 def admin_dash():
-    return render_template("admin_dash.html")   
+    total_artists = User.query.filter_by(role='artist').count()
+    total_listeners = User.query.filter_by(role='listener').count()
+    total_songs = Song.query.count()
+    total_playlists = Playlist.query.count()
+    return render_template("admin_dash.html", 
+                           total_artists=total_artists,
+                           total_listeners=total_listeners,
+                           total_songs=total_songs,
+                           total_playlists=total_playlists)   
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

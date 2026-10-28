@@ -1,0 +1,118 @@
+{% extends "admin_nav.html" %}
+{% block title %}Admin - User Role Statistics{% endblock %} 
+
+{% block styles %}
+    <style>
+        main {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f8f9fc;
+            padding: 30px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .charts-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 24px;
+            flex: 1;
+            min-width: 340px;
+            max-width: 500px;
+            text-align: center;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>User Role Analytics: Listeners vs. Artists</h1>
+
+    <div class="charts-container">
+        <!-- 1. Matplotlib Pie Chart Card -->
+        <div class="card">
+            <h3>Role Distribution (Pie Chart)</h3>
+            <p><small style="color: #666;">Generated on Server with Matplotlib</small></p>
+            <img src="data:image/png;base64,{{ pie_img }}" alt="Matplotlib Pie Chart">
+        </div>
+
+        <!-- 2. Chart.js Bar Chart Card -->
+        <div class="card">
+            <h3>Headcount Comparison (Bar Chart)</h3>
+            <p><small style="color: #666;">Rendered on Client with Chart.js</small></p>
+            <div>
+                <canvas id="rolesBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js Script -->
+    <script>
+        // Retrieve backend arrays via Jinja's |tojson filter
+        const roleLabels = {{ labels | tojson }};
+        const roleValues = {{ values | tojson }};
+
+        const ctx = document.getElementById('rolesBarChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: roleLabels,
+                datasets: [{
+                    label: 'Total Users',
+                    data: roleValues,
+                    backgroundColor: ['#4e73df', '#1cc88a'],
+                    borderColor: ['#2e59d9', '#17a673'],
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false // Only one metric, so legend is redundant
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Count: ${context.parsed.y} users`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1, // Whole user counts only
+                            precision: 0
+                        },
+                        title: {
+                            display: true,
+                            text: 'Number of Accounts'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Role'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}
